@@ -1,0 +1,167 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <!-- CSS only -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+
+<link rel="stylesheet" href="{% static 'style.css' %}">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+</head>
+<body>
+    
+    <input type="hidden" value="{{request.user}}" id="uname">
+    <input type="hidden" value="{{rms.name}}" id="roomname">
+
+    <!-- New Style Starts -->
+
+    <div class="main">
+        <div class="side-bar-1">
+            <h1>Chat</h1>
+            <input type="text" class="srch-bar" placeholder="Search...">
+            <div class="side-bar-1-scroll">
+            
+            <div class="card-div">
+                <div class="mrow">
+                    <div>
+                        <img class="post-sub-profile" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQO7rSbPANgVODJRFbApdRGzERyJKQeEgdYNg&usqp=CAU" alt="">
+                    </div>
+                    <div class="mspac">
+                        <strong><p>Srejus </p></strong>
+                    </div>
+                        
+                        
+                </div>
+                
+                <p style="padding-left: 20px;">Hi there r u busy now?</p>
+            </div>
+
+
+            
+
+
+
+        </div>
+    </div>
+    <!-- SIDEBAR 2 || Message Box Section -->
+        <div class="side-bar-2">
+            
+            <div class="mrow">
+                <div >
+                    <img class="post-sub-profile" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQO7rSbPANgVODJRFbApdRGzERyJKQeEgdYNg&usqp=CAU" alt="">
+                </div>
+                <div class="mspac">
+                    <h4>Srejus </h4>
+                </div>
+                
+                    
+            </div>
+            <hr style="width: 100%;">
+            <div class="side-bar-2-scroll" id="msg-div">
+               
+
+                <!-- Message Me -->
+                <!-- <div class="msg-layout-me">
+                   
+                    <p style="color: white;">Hello there</p>
+                    <p style="font-size: 12px;color: #d4d4d4;margin-bottom: 0px;">10:40</p>
+                </div> -->
+                <!-- Message Other Me -->
+
+               
+            </div>
+            <!-- Send Button -->
+            <form method="post" action=".">
+                <input class="myinp" type="text" placeholder="Enter Message" id="msg-place">
+                <button class="btn" type="submit" value="" id="send-btn"><i class="fa fa-paper-plane"></i></button>
+            </form>
+            <!-- Send Button Ends -->
+        </div>
+        <br>
+        
+</div>
+
+    <!-- New Style Ends -->
+
+   
+
+    <script>
+        const roomName = document.getElementById('roomname').value;
+        const userName = document.getElementById('uname').value;
+
+        
+
+
+        const chatSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/'
+            + roomName
+            + '/'
+        );
+        chatSocket.onmessage = function(e){
+            console.log('onmessage')
+
+            const data = JSON.parse(e.data);
+
+            if(data.message){
+                if(data.username == userName){
+                    let html = '<div class="msg-layout-me">'
+                    +'<p style="color: #d4d4d4;margin-bottom: 0px;">'+data.username+'</p>'
+                    +'<p style="color: white;">'+data.message+'</p></div>'
+
+                    document.querySelector("#msg-div").innerHTML += html;
+                
+                }
+                else{
+                    let html = '<div class="msg-layout-other">'
+                    +'<p style="color: #d4d4d4;margin-bottom: 0px;">'+data.username+'</p>'
+                    +'<p>'+data.message+'</p></div>'
+
+                    document.querySelector("#msg-div").innerHTML += html;
+                
+                }
+                
+
+               
+            }
+            else{
+                alert("Empty Message");
+            }
+        }
+
+        chatSocket.onclose = function(e){
+            console.log('onclose')
+        }
+
+        //
+
+        document.querySelector("#send-btn").onclick = function(e){
+
+            e.preventDefault();
+
+            const msgdom = document.getElementById('msg-place');
+            const msg = document.getElementById('msg-place').value; 
+            
+            chatSocket.send(JSON.stringify({
+                'message': msg,
+                'username': userName,
+                "room": roomName
+            }));
+
+            msgdom.value = '';
+
+            return false;
+        }
+
+
+    </script>
+  
+</body>
+</html>

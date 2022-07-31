@@ -1,4 +1,5 @@
 {% load static %}
+{% static "images" as baseUrl%}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,47 +18,59 @@
 <body>
     
     <input type="hidden" value="{{request.user}}" id="uname">
-    <input type="hidden" value="{{rms.name}}" id="roomname">
+    <input type="hidden" value="{{room.name}}" id="roomname">
 
     <!-- New Style Starts -->
 
     <div class="main">
         <div class="side-bar-1">
-            <h1>Chat</h1>
+            <a style="color: black;text-decoration: none;" href="/rooms"><h1>Chat</h1></a>
             <input type="text" class="srch-bar" placeholder="Search...">
             <div class="side-bar-1-scroll">
-            
+        
+        <!-- Groups -->
+            {% for i in rms %}
+            <a class="btn" style="width:100%;height: 120px;" href="/room/{{i.slug}}">
             <div class="card-div">
                 <div class="mrow">
                     <div>
-                        <img class="post-sub-profile" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQO7rSbPANgVODJRFbApdRGzERyJKQeEgdYNg&usqp=CAU" alt="">
+                        {% if  i.profile_picture %}
+                        <img class="post-sub-profile" src="/media/{{i.profile_picture}}" alt="">
+                        {% else %}
+                        <img class="post-sub-profile" src="https://cdn-icons-png.flaticon.com/512/143/143438.png" alt="">
+                        {% endif %}
                     </div>
                     <div class="mspac">
-                        <strong><p>Srejus </p></strong>
+                        <strong><p>{{i.name}}</p></strong>
                     </div>
                         
                         
                 </div>
-                
-                <p style="padding-left: 20px;">Hi there r u busy now?</p>
-            </div>
-
-
             
-
+            </div>
+        </a>
+            <hr style="width: 100%;">
+            {% endfor %}
 
 
         </div>
+        <button class="btn btn-danger"><i class="fa fa-close"></i> Logout</button>
     </div>
     <!-- SIDEBAR 2 || Message Box Section -->
+   
         <div class="side-bar-2">
+            {% if flag == 1 %}
             
             <div class="mrow">
                 <div >
-                    <img class="post-sub-profile" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQO7rSbPANgVODJRFbApdRGzERyJKQeEgdYNg&usqp=CAU" alt="">
+                    {% if  room.profile_picture %}
+                    <img class="post-sub-profile" src="/media/{{room.profile_picture}}" alt="">
+                    {% else %}
+                    <img class="post-sub-profile" src="https://cdn-icons-png.flaticon.com/512/143/143438.png" alt="">
+                    {% endif %}
                 </div>
                 <div class="mspac">
-                    <h4>Srejus </h4>
+                    <h4>{{room.name}} </h4>
                 </div>
                 
                     
@@ -78,13 +91,14 @@
             </div>
             <!-- Send Button -->
             <form method="post" action=".">
-                <input class="myinp" type="text" placeholder="Enter Message" id="msg-place">
-                <button class="btn" type="submit" value="" id="send-btn"><i class="fa fa-paper-plane"></i></button>
+                <textarea style="height: 40px;resize:none;margin-top:20px;" class="myinp" type="text" placeholder="Type Message" id="msg-place"></textarea>
+                <button class="btn" style="margin-top:-30px;" type="submit" value="" id="send-btn"><i class="fa fa-paper-plane"></i></button>
             </form>
             <!-- Send Button Ends -->
+            {% endif %}
         </div>
         <br>
-        
+    
 </div>
 
     <!-- New Style Ends -->

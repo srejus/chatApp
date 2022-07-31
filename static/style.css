@@ -14,13 +14,13 @@ body{
 }
 .side-bar-1{
     width: 300px;
-    height: 650px;
+    height: 550px;
     
    
 }
 .side-bar-1-scroll{
     width: 300px;
-    height: 600px;
+    height: 500px;
     overflow-y: scroll;
    
 }
@@ -82,10 +82,10 @@ body{
     background-color: white;
     display: flex;
     min-width: 100%;
-    height: 130px;
+    height: 70px;
     padding:15px;
     flex-direction: column;
-    margin-top: 20px;
+    margin-top: 15px;
 }
 
 .mrow{
@@ -118,5 +118,11 @@ body{
     margin: 7px;
     border-radius: 25px;
     padding: 7px;
+    border: none;
+}
+.btn{
+    border:none;
+}
+.btn:hover{
     border: none;
 }

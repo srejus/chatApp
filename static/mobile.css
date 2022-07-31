@@ -1,0 +1,71 @@
+nav{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 15px;
+    height: 55px;
+}
+.main{
+    width: 100%;
+    height: 450px;
+    overflow-y: scroll;
+}
+
+.main::-webkit-scrollbar {
+    display: none;
+}
+
+.mrow{
+    display: flex;
+    flex-direction: row;
+
+}
+.usr-name{
+    margin-top: 15px;
+    margin-left: 10px;
+    
+}
+
+.account{
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right:15px;
+    margin-bottom: 7px;
+    object-fit: cover;
+}
+
+.account-list{
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    margin-right:15px;
+    margin-bottom: 7px;
+    object-fit: cover;
+    margin:12px;
+}
+
+.msg-layout-other{
+    min-width: 20px;
+    margin-top: 15px;
+    min-height: 20px;
+    background-color: white;
+    border-radius: 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding-left: 7px;
+}
+.msg-layout-me{
+    min-width: 20px;
+    margin-top: 15px;
+    min-height: 10px;
+    background-color: #4a5de7;
+    border-radius: 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+    padding-right: 7px;
+}

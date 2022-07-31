@@ -1,0 +1,144 @@
+{% load static %}
+{% static "images" as baseUrl%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <!-- CSS only -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+
+<link rel="stylesheet" href="{% static 'mobile.css' %}">
+
+<!-- Ajax CDN -->
+<script src=
+"https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js">
+    </script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+</head>
+<body>
+    <nav style="justify-content: flex-start;">
+       
+        <a href="#">
+            {% if room.profile_picture %}
+            <img src="/media/{{room.profile_picture}}" class="account" alt="">
+            {% else %}
+            <img src="https://cdn-icons-png.flaticon.com/512/143/143438.png" class="account" alt="">
+
+            {% endif %}
+        </a>
+        <h1 style="margin-top: 7px;">{{room.name}}</h1>
+    </nav>
+    <hr style="width: 100%;">
+    <div class="main">
+       <div id="msg-div">
+
+       
+    </div>
+
+       
+    </div>
+
+    <input type="hidden" value="{{request.user}}" id="uname">
+    <input type="hidden" value="{{room.name}}" id="roomname">
+
+    <form method="post" action=".">
+        <textarea style="height: 40px;resize:none;margin-top:-10px;width: 80%;margin-left:10px;" class="myinp" type="text" placeholder="Type Message" id="msg-place"></textarea>
+        <button class="btn" style="margin-top:-30px;" type="submit" value="" id="send-btn"><i class="fa fa-paper-plane"></i></button>
+    </form>
+
+
+
+    <script>
+        const roomName = document.getElementById('roomname').value;
+        const userName = document.getElementById('uname').value;
+
+        
+        
+
+        const chatSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/'
+            + roomName
+            + '/'
+        );
+        chatSocket.onmessage = function(e){
+            console.log('onmessage')
+
+            const data = JSON.parse(e.data);
+
+            if(data.message){
+                var audio = new Audio('/media/tones/tone1.ogg');
+                audio.play();
+
+                if(data.username == userName){
+                    let html = '<div class="msg-layout-me">'
+                    +'<p style="color: #d4d4d4;margin-bottom: 0px;">'+data.username+'</p>'
+                    +'<p style="color: white;">'+data.message+'</p></div>'
+
+                    document.querySelector("#msg-div").innerHTML += html;
+                
+                }
+                else{
+                    let html = '<div class="msg-layout-other">'
+                    +'<p style="color: #d4d4d4;margin-bottom: 0px;">'+data.username+'</p>'
+                    +'<p>'+data.message+'</p></div>'
+
+                    document.querySelector("#msg-div").innerHTML += html;
+                
+                }
+                
+                scrollToBottom();
+               
+            }
+            // else{
+            //     alert("Empty Message");
+            // }
+        }
+
+        chatSocket.onclose = function(e){
+            console.log('onclose')
+        }
+
+        //
+
+        document.querySelector("#send-btn").onclick = function(e){
+
+            e.preventDefault();
+
+            const msgdom = document.getElementById('msg-place');
+            const msg = document.getElementById('msg-place').value; 
+            
+            chatSocket.send(JSON.stringify({
+                'message': msg,
+                'username': userName,
+                "room": roomName
+            }));
+
+            msgdom.value = '';
+
+            return false;
+        }
+
+        //
+
+        function scrollToBottom(){
+                const objectDiv = document.querySelector("#msg-div");
+                objectDiv.scrollTop = objectDiv.scrollHeight;
+        }
+
+        scrollToBottom();
+
+
+
+    </script>
+    
+
+</body>
+</html>

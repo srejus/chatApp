@@ -14,6 +14,12 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
+<!-- Ajax CDN -->
+<script src=
+"https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js">
+    </script>
+
+
 </head>
 <body>
     
@@ -75,6 +81,7 @@
                 
                     
             </div>
+            <input type="hidden" id="test" value="">
             <hr style="width: 100%;">
             <div class="side-bar-2-scroll" id="msg-div">
                
@@ -91,9 +98,26 @@
             </div>
             <!-- Send Button -->
             <form method="post" action=".">
-                <textarea style="height: 40px;resize:none;margin-top:20px;" class="myinp" type="text" placeholder="Type Message" id="msg-place"></textarea>
-                <button class="btn" style="margin-top:-30px;" type="submit" value="" id="send-btn"><i class="fa fa-paper-plane"></i></button>
-            </form>
+                <div class="mrow">
+                    <style>
+                        .image-upload>input {
+                            display: none;
+                        }
+                    </style>
+                    <!-- Image Upload Button -->
+                    <div class="image-upload">
+                        <label for="file-input">
+                          <i class="fa fa-camera" style="font-size: 30px;margin-top:25px;margin-right:5px;"></i>
+                        </label>
+                      
+                        <input id="file-input" type="file" onchange="encodeImageFileAsURL(this)" />
+                        
+                      </div>
+                      <!-- Image Upload Section Ends -->
+                    <textarea style="height: 40px;resize:none;margin-top:20px;" class="form-control" type="text" placeholder="Type Message" id="msg-place"></textarea>
+                    <button class="btn" style="margin-top:20px;" type="submit" value="" id="send-btn"><i class="fa fa-paper-plane" style="font-size: 25px;"></i></button>    
+                </div>
+                </form>
             <!-- Send Button Ends -->
             {% endif %}
         </div>
@@ -108,6 +132,34 @@
     <script>
         const roomName = document.getElementById('roomname').value;
         const userName = document.getElementById('uname').value;
+
+       // Keyboard Shortcut to send Message
+
+       document.addEventListener("keydown",e =>{
+            if(e.ctrlKey){
+                $("#send-btn").click();
+            }
+        })
+
+       
+
+        // Convert Image to base64
+        function encodeImageFileAsURL(element) {
+            var file = element.files[0];
+            var reader = new FileReader();
+            reader.onloadend = function() {
+                
+                 // Const value to hold Image Base64 URL
+
+                const imgURL = reader.result;
+                
+                document.querySelector("#test").value = reader.result;
+                alert("Image ready to send!")
+                
+                
+            }
+            reader.readAsDataURL(file);
+        }
 
         
 
@@ -124,30 +176,39 @@
 
             const data = JSON.parse(e.data);
 
-            if(data.message){
-                if(data.username == userName){
-                    let html = '<div class="msg-layout-me">'
-                    +'<p style="color: #d4d4d4;margin-bottom: 0px;">'+data.username+'</p>'
-                    +'<p style="color: white;">'+data.message+'</p></div>'
 
-                    document.querySelector("#msg-div").innerHTML += html;
-                
+            if(data.message){
+                var audio = new Audio('/media/tones/tone1.ogg');
+                audio.play();
+                if(data.username == userName){
+                    if(data.message.length >= 100){
+                        let html = '<img src="'+data.message+'" style="width:200px;margin-top:5px;margin-bottom:5px;" align="right">'
+                        document.querySelector("#msg-div").innerHTML += html;
+                    }else{
+                        let html = '<div class="msg-layout-me">'
+                        +'<p style="color: #d4d4d4;margin-bottom: 0px;">'+data.username+'</p>'
+                        +'<p style="color: white;">'+data.message+'</p></div>'
+
+                        document.querySelector("#msg-div").innerHTML += html;
+                    }
                 }
                 else{
-                    let html = '<div class="msg-layout-other">'
-                    +'<p style="color: #d4d4d4;margin-bottom: 0px;">'+data.username+'</p>'
-                    +'<p>'+data.message+'</p></div>'
+                    if(data.message.length >= 100){
+                        let html = '<img src="'+data.message+'" style="width:200px;margin-top:5px;margin-bottom:5px;">'
+                        document.querySelector("#msg-div").innerHTML += html;
+                    }else{
+                        let html = '<div class="msg-layout-other">'
+                        +'<p style="color: #d4d4d4;margin-bottom: 0px;">'+data.username+'</p>'
+                        +'<p>'+data.message+'</p></div>'
 
-                    document.querySelector("#msg-div").innerHTML += html;
-                
+                        document.querySelector("#msg-div").innerHTML += html;
+                    }
                 }
                 
-
+                scrollToBottom();
                
             }
-            else{
-                alert("Empty Message");
-            }
+           
         }
 
         chatSocket.onclose = function(e){
@@ -161,7 +222,19 @@
             e.preventDefault();
 
             const msgdom = document.getElementById('msg-place');
-            const msg = document.getElementById('msg-place').value; 
+            const msg = document.getElementById('msg-place').value;
+
+            // Check if there is image
+
+            const imageFile = document.querySelector("#test").value;
+            
+            if(msg == ''){
+                 chatSocket.send(JSON.stringify({
+                    'message': imageFile,
+                    'username': userName,
+                    "room": roomName
+                }));
+            }
             
             chatSocket.send(JSON.stringify({
                 'message': msg,
@@ -172,7 +245,18 @@
             msgdom.value = '';
 
             return false;
+
+            
         }
+
+        //
+
+        function scrollToBottom(){
+                const objectDiv = document.querySelector("#msg-div");
+                objectDiv.scrollTop = objectDiv.scrollHeight;
+        }
+
+        scrollToBottom();
 
 
     </script>

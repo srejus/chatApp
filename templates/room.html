@@ -12,6 +12,8 @@
 
 <link rel="stylesheet" href="{% static 'style.css' %}">
 
+<link rel="stylesheet" href="{% static 'profile.css' %}">
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 <!-- Ajax CDN -->
@@ -27,10 +29,22 @@
     <input type="hidden" value="{{room.name}}" id="roomname">
 
     <!-- New Style Starts -->
+    <nav>
+        <a style="color: black;text-decoration: none;" href="/rooms"><h1>Chat</h1></a>
+        <a style="text-decoration: none;color:black;" href="/edit-profile">
+            {% if ac.profile_picture %}
+            <img class="pro-pic" src="/media/{{ac.profile_picture}}" alt="">
+            {% else %}
+            <img class="pro-pic" src="https://cdn-icons-png.flaticon.com/512/3237/3237472.png" alt="">
+            {% endif %}
+        </a>
+    </nav>
+    <hr style="width: 100%;">
 
     <div class="main">
         <div class="side-bar-1">
-            <a style="color: black;text-decoration: none;" href="/rooms"><h1>Chat</h1></a>
+           
+
             <input type="text" class="srch-bar" placeholder="Search...">
             <div class="side-bar-1-scroll">
         
@@ -60,11 +74,13 @@
 
 
         </div>
-        <button class="btn btn-danger"><i class="fa fa-close"></i> Logout</button>
+        <a href="/logout"><button class="btn btn-danger"><i class="fa fa-close"></i> Logout</button></a>
     </div>
     <!-- SIDEBAR 2 || Message Box Section -->
+    <!-- IF FLAG 1 THEN SHOWS MESSAGE SECTION || IF FLAG 2 THEN SHOWS EDIT PROFILE SECTION -->
    
         <div class="side-bar-2">
+            <!-- ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| -->
             {% if flag == 1 %}
             
             <div class="mrow">
@@ -119,6 +135,82 @@
                 </div>
                 </form>
             <!-- Send Button Ends -->
+            <!-- ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| -->
+            {% elif flag == 2%}
+            <!-- Profile Edit Section------- -->
+            <br><br>
+            <h2 style="margin-left: 10px;">Edit Profile</h2>
+            <form action="/edit-profile" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+            <div class="container">
+                <div class="row gutters">
+                <div class="col-xl-3 col-lg-3 col-md-12 col-sm-12 col-12">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="account-settings">
+                            <div class="user-profile">
+                                <div class="user-avatar">
+                                    {% if ac.profile_picture %}
+                                    <img src="/media/{{ac.profile_picture}}" alt="user image">
+                                    {% else %}
+                                    <img src="https://cdn-icons-png.flaticon.com/512/3237/3237472.png" alt="user image">
+                                    {% endif %}
+                                </div>
+                                <h5 class="user-name">{{ac.name}}</h5>
+                                <h6 class="user-email">@{{ac.user.username}}</h6>
+                            </div>
+                            <div class="about">
+                                <h5>About</h5>
+                                <p>{{ac.desc}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+                <div class="col-xl-9 col-lg-9 col-md-12 col-sm-12 col-12">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="row gutters">
+                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                <h6 class="mb-2 text-primary">Personal Details</h6>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label for="fullName">Full Name</label>
+                                    <input name="name" type="text" class="form-control" id="fullName" placeholder="Enter full name">
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label for="pro-pic">Profile Picture</label>
+                                    <input name="image" type="file" class="form-control" id="eMail">
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label for="desc">About</label>
+                                    <input name="about" type="text" class="form-control" id="phone" placeholder="Write something about You">
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <br>
+                        <div class="row gutters">
+                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                                <div class="text-right">
+                                    
+                                    <button type="submit" id="submit" name="submit" class="btn btn-primary">Update Profile</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+                </div>
+                </div>
+            </form>
+
+            <!-- Profile Edit Section------- -->
             {% endif %}
         </div>
         <br>

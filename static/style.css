@@ -4,7 +4,7 @@ body{
 
 .main{
     width: 90%;
-    height: 650px;
+    height: 620px;
     margin: 50px;
     display: flex;
     flex-direction: row;
@@ -12,6 +12,17 @@ body{
     /* align-items: center; */
     
 }
+
+nav{
+    padding-top: 15px;
+    padding-left: 20px;
+    padding-right: 20px;
+    height: 70px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
 .side-bar-1{
     width: 300px;
     height: 550px;
@@ -25,8 +36,8 @@ body{
    
 }
 .side-bar-2{
-    width: 500px;
-    height: 650px;
+    width: 850px;
+    height: 550px;
     
 }
 
@@ -104,6 +115,7 @@ body{
     border:none;
     outline: none;
     border-radius: 50%;
+    object-fit: cover;
 }
 
 .pro-pic{

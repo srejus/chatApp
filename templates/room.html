@@ -24,20 +24,26 @@
 
 </head>
 <body>
+
+    
     
     <input type="hidden" value="{{request.user}}" id="uname">
-    <input type="hidden" value="{{room.name}}" id="roomname">
+    <input type="hidden" value="{{room.slug}}" id="roomname">
 
     <!-- New Style Starts -->
     <nav>
         <a style="color: black;text-decoration: none;" href="/rooms"><h1>Chat</h1></a>
-        <a style="text-decoration: none;color:black;" href="/edit-profile">
-            {% if ac.profile_picture %}
-            <img class="pro-pic" src="/media/{{ac.profile_picture}}" alt="">
-            {% else %}
-            <img class="pro-pic" src="https://cdn-icons-png.flaticon.com/512/3237/3237472.png" alt="">
-            {% endif %}
-        </a>
+        <div style="display: flex;flex-direction:row; width: 100px;justify-content: space-between;">
+            <a style="text-decoration: none;color:black;" href="/edit-profile">
+                {% if ac.profile_picture %}
+                <img class="pro-pic" src="/media/{{ac.profile_picture}}" alt="">
+                {% else %}
+                <img class="pro-pic" src="https://cdn-icons-png.flaticon.com/512/3237/3237472.png" alt="">
+                {% endif %}
+            </a>
+            <a style="margin-top:10px;font-size: 25px;color: black;" href="/logout"><i class="fa fa-sign-out"></i></a>
+        </div>
+       
     </nav>
     <hr style="width: 100%;">
 
@@ -51,30 +57,106 @@
         <!-- Groups -->
             {% for i in rms %}
             <a class="btn" style="width:100%;height: 120px;" href="/room/{{i.slug}}">
-            <div class="card-div">
-                <div class="mrow">
-                    <div>
-                        {% if  i.profile_picture %}
-                        <img class="post-sub-profile" src="/media/{{i.profile_picture}}" alt="">
-                        {% else %}
-                        <img class="post-sub-profile" src="https://cdn-icons-png.flaticon.com/512/143/143438.png" alt="">
-                        {% endif %}
+                {% if i.isPrivate %}
+                    <div class="card-div">
+                        <div class="mrow">
+                            <div>
+                                {% if i.usr1.user == request.user %}
+                                    {% if  i.usr2.profile_picture %}
+                                    <img class="post-sub-profile" src="/media/{{i.usr2.profile_picture}}" alt="">
+                                    {% else %}
+                                    <img class="post-sub-profile" src="https://cdn-icons-png.flaticon.com/512/3237/3237472.png" alt="">
+                                    {% endif %}
+                                    </div>
+                                    <div class="mspac">
+                                        <strong><p>{{i.usr2.name}}</p></strong>
+                                    </div>
+                                {% else %}
+                                    {% if  i.usr1.profile_picture %}
+                                    <img class="post-sub-profile" src="/media/{{i.usr1.profile_picture}}" alt="">
+                                    {% else %}
+                                    <img class="post-sub-profile" src="https://cdn-icons-png.flaticon.com/512/3237/3237472.png" alt="">
+                                    {% endif %}
+                                    </div>
+                                    <div class="mspac">
+                                        <strong><p>{{i.usr1.name}}</p></strong>
+                                    </div>
+                                {% endif %}
+                            
+                                
+                                
+                        </div>
+                    
                     </div>
-                    <div class="mspac">
-                        <strong><p>{{i.name}}</p></strong>
+                {% else %}
+                <div class="card-div">
+                    <div class="mrow">
+                        <div>
+                            {% if  i.profile_picture %}
+                            <img class="post-sub-profile" src="/media/{{i.profile_picture}}" alt="">
+                            {% else %}
+                            <img class="post-sub-profile" src="https://cdn-icons-png.flaticon.com/512/143/143438.png" alt="">
+                            {% endif %}
+                        </div>
+                        <div class="mspac">
+                            <strong><p>{{i.name}}</p></strong>
+                        </div>
+                            
+                            
                     </div>
-                        
-                        
+                
                 </div>
-            
-            </div>
+                {% endif %}
         </a>
             <hr style="width: 100%;">
             {% endfor %}
 
 
         </div>
-        <a href="/logout"><button class="btn btn-danger"><i class="fa fa-close"></i> Logout</button></a>
+        
+
+
+        <!-- POPUP GROUP CREATE -->
+        <div class="popdiv">
+            <button class="open-button btn btn-success" onclick="openForm()">Create Group</button>
+
+            <div class="form-popup" id="myForm">
+              <form action="/create-group" method="POST" class="form-container" enctype="multipart/form-data">
+                {% csrf_token %}
+                <h1>Create Group</h1>
+                <label for="psw"><b>Group Icon</b></label>
+                <input type="file" name="image">
+                <br>
+            
+                <label for="email"><b>Group Name</b></label>
+                <input type="text" placeholder="Enter Group Name *" name="name" required>
+
+                <label for="email"><b>About</b></label>
+                <input type="text" placeholder="Write about the Group" name="about">
+            
+            
+                <button type="submit" class="btn">Create Group</button>
+                <button type="button" class="btn cancel" onclick="closeForm()">Cancel</button>
+              </form>
+            </div>
+            
+            <script>
+            function openForm() {
+              document.getElementById("myForm").style.display = "block";
+            }
+            
+            function closeForm() {
+              document.getElementById("myForm").style.display = "none";
+            }
+            </script>
+        </div>
+
+
+         <!-- POPUP GROUP CREATE -->
+
+
+
+
     </div>
     <!-- SIDEBAR 2 || Message Box Section -->
     <!-- IF FLAG 1 THEN SHOWS MESSAGE SECTION || IF FLAG 2 THEN SHOWS EDIT PROFILE SECTION -->
@@ -83,23 +165,63 @@
             <!-- ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| -->
             {% if flag == 1 %}
             
+
+            <a href="/chat-settings/{{room.slug}}" style="color: black;text-decoration:none;">
             <div class="mrow">
                 <div >
-                    {% if  room.profile_picture %}
-                    <img class="post-sub-profile" src="/media/{{room.profile_picture}}" alt="">
+                    {% if me %}
+                        {% if  other.profile_picture %}
+                        <img class="post-sub-profile" src="/media/{{other.profile_picture}}" alt="">
+                        {% else %}
+                        <img class="post-sub-profile" src="https://cdn-icons-png.flaticon.com/512/143/143438.png" alt="">
+                        {% endif %}
                     {% else %}
-                    <img class="post-sub-profile" src="https://cdn-icons-png.flaticon.com/512/143/143438.png" alt="">
+                        {% if  room.profile_picture %}
+                        <img class="post-sub-profile" src="/media/{{room.profile_picture}}" alt="">
+                        {% else %}
+                        <img class="post-sub-profile" src="https://cdn-icons-png.flaticon.com/512/143/143438.png" alt="">
+                        {% endif %}
                     {% endif %}
                 </div>
                 <div class="mspac">
-                    <h4>{{room.name}} </h4>
+                    {% if me %}
+                    <h4>{{other.name}}</h4>
+                    {% else %}
+                    <h4>{{room.name}}</h4>
+                    {% endif %}
+                    
                 </div>
                 
                     
             </div>
+        </a>
+
             <input type="hidden" id="test" value="">
             <hr style="width: 100%;">
             <div class="side-bar-2-scroll" id="msg-div">
+                {% for i in messages %}
+                {% if i.user == request.user %}
+                {% if i.get_len > 2500 %}
+                <img src="{{i.content}}" style="width:200px;margin-top:5px;margin-bottom:5px;" align="right">
+                {% else %}
+                <div class="msg-layout-me">
+                    <p style="color: #d4d4d4;margin-bottom: 0px;">{{i.user.username}}</p>
+                    <p style="color: white;">{{i.content}}</p>
+                </div>
+                {% endif %}
+                {% else %}
+                <div class="msg-layout-other">
+                    {% if i.get_len > 2500 %}
+                        <img src="{{i.content}}" style="width:200px;margin-top:5px;margin-bottom:5px;" align="right">
+                    {% else %}
+                    <p style="color: #d4d4d4;margin-bottom: 0px;">{{i.user.username}}</p>
+                    <p>{{i.content}}</p>
+                </div>
+                {% endif %}
+                {% endif %}
+
+                        
+                {% endfor %}
                
 
                 <!-- Message Me -->
@@ -130,13 +252,13 @@
                         
                       </div>
                       <!-- Image Upload Section Ends -->
-                    <textarea style="height: 40px;resize:none;margin-top:20px;" class="form-control" type="text" placeholder="Type Message" id="msg-place"></textarea>
+                    <textarea maxlength="2000" style="height: 40px;resize:none;margin-top:20px;" class="form-control" type="text" placeholder="Type Message" id="msg-place"></textarea>
                     <button class="btn" style="margin-top:20px;" type="submit" value="" id="send-btn"><i class="fa fa-paper-plane" style="font-size: 25px;"></i></button>    
                 </div>
                 </form>
             <!-- Send Button Ends -->
             <!-- ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| -->
-            {% elif flag == 2%}
+            {% elif flag == 2 %}
             <!-- Profile Edit Section------- -->
             <br><br>
             <h2 style="margin-left: 10px;">Edit Profile</h2>
@@ -211,11 +333,87 @@
             </form>
 
             <!-- Profile Edit Section------- -->
+
+            <!-- ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| -->
+            {% elif flag == 3 %}
+            <!-- Group Setting Section -->
+            <div class="mrow">
+                <div >
+                    {% if  room.profile_picture %}
+                    <img class="post-sub-profile" src="/media/{{room.profile_picture}}" alt="">
+                    {% else %}
+                    <img class="post-sub-profile" src="https://cdn-icons-png.flaticon.com/512/143/143438.png" alt="">
+                    {% endif %}
+                </div>
+                <div class="mspac">
+                    <h4>{{room.name}} </h4>
+                </div>
+                
+                
+                    
+            </div>
+            <hr style="width: 100%;">
+            <!-- Button for Clear all Chat -->
+            {% if request.user == room.owner %}
+            <a href="/clear-chat/{{room.slug}}"><button class="btn btn-danger">Clear Chat</button></a>
+            <a href="/delete-group/{{room.slug}}"><button class="btn btn-danger">Delete Group</button></a>
+            {% endif %}
+            <!-- Group Setting Section Ends-->
             {% endif %}
         </div>
         <br>
     
 </div>
+
+<div id="snackbar">You have New Message!</div>
+
+<style>
+    /* The snackbar - position it at the bottom and in the middle of the screen */
+#snackbar {
+  visibility: hidden; /* Hidden by default. Visible on click */
+  min-width: 250px; /* Set a default minimum width */
+  margin-left: -125px; /* Divide value of min-width by 2 */
+  background-color: #333; /* Black background color */
+  color: #fff; /* White text color */
+  text-align: center; /* Centered text */
+  border-radius: 2px; /* Rounded borders */
+  padding: 16px; /* Padding */
+  position: fixed; /* Sit on top of the screen */
+  z-index: 1; /* Add a z-index if needed */
+  left: 50%; /* Center the snackbar */
+  bottom: 30px; /* 30px from the bottom */
+}
+
+/* Show the snackbar when clicking on a button (class added with JavaScript) */
+#snackbar.show {
+  visibility: visible; /* Show the snackbar */
+  /* Add animation: Take 0.5 seconds to fade in and out the snackbar.
+  However, delay the fade out process for 2.5 seconds */
+  -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+/* Animations to fade the snackbar in and out */
+@-webkit-keyframes fadein {
+  from {bottom: 0; opacity: 0;}
+  to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadein {
+  from {bottom: 0; opacity: 0;}
+  to {bottom: 30px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+  from {bottom: 30px; opacity: 1;}
+  to {bottom: 0; opacity: 0;}
+}
+
+@keyframes fadeout {
+  from {bottom: 30px; opacity: 1;}
+  to {bottom: 0; opacity: 0;}
+}
+</style>
 
     <!-- New Style Ends -->
 
@@ -270,10 +468,22 @@
 
 
             if(data.message){
+
+                // Toast Notification
+                
+                // var x = document.getElementById("snackbar");
+
+                // // Add the "show" class to DIV
+                // x.className = "show";
+
+                // // After 3 seconds, remove the show class from DIV
+                // setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+
+
                 var audio = new Audio('/media/tones/tone1.ogg');
                 audio.play();
                 if(data.username == userName){
-                    if(data.message.length >= 100){
+                    if(data.message.length >= 2500){
                         let html = '<img src="'+data.message+'" style="width:200px;margin-top:5px;margin-bottom:5px;" align="right">'
                         document.querySelector("#msg-div").innerHTML += html;
                     }else{

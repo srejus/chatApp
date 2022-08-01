@@ -2,6 +2,7 @@ from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from home.models import Account
 from room.views import *
+from room.models import *
 from django.contrib.auth import authenticate, login,logout
 
 # Create your views here.
@@ -46,6 +47,9 @@ def edit(request):
 
     rooms = Room.objects.all()
     flag = 2
+
+    rooms = Connection.objects.filter(user__user=request.user)
+    usr_room = Room.objects.filter(usr2=Account.objects.get(user=request.user))
     
     # Fetch user Account Data
     usrAc = Account.objects.get(user=request.user)
@@ -54,4 +58,4 @@ def edit(request):
 
     if 'Mobile' in user_agent:
         return render(request,'mobile/rooms.html',{'rms':rooms})
-    return render(request,'room.html',{'rms':rooms,'flag':flag,'ac':usrAc})
+    return render(request,'room.html',{'rms':rooms,'flag':flag,'ac':usrAc,"rooms":usr_room})

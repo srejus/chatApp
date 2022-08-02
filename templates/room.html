@@ -53,7 +53,7 @@
             <form action="/search" method="GET">
 
                 <div class="mrow">
-                    <input type="text" class="srch-bar" name="term" placeholder="Search...">
+                    <input required type="text" class="srch-bar" name="term" placeholder="Search...">
                     <button class="btn" type="submit"><i class="fa fa-search"></i></button>
                 </div>
 
@@ -204,7 +204,7 @@
 
         <!-- POPUP GROUP CREATE -->
         <div class="popdiv">
-            <button class="open-button btn btn-success" onclick="openForm()">Create Group</button>
+            <button class="open-button btn btn-danger" onclick="openForm()"> <i class="fa fa-plus"></i>&nbsp; Create Group</button>
 
             <div class="form-popup" id="myForm">
               <form action="/create-group" method="POST" class="form-container" enctype="multipart/form-data">
@@ -284,7 +284,8 @@
 
             <input type="hidden" id="test" value="">
             <hr style="width: 100%;">
-            <div class="side-bar-2-scroll" id="msg-div">
+            <div style="height:500px;">
+            <div class="side-bar-2-scroll" id="msg-div" style="width:100%;height: 450px;">
                 {% for i in messages %}
                 {% if i.user == request.user %}
                 {% if i.get_len > 2500 %}
@@ -320,6 +321,8 @@
 
                
             </div>
+        </div>
+   
             <!-- Send Button -->
             <form method="post" action=".">
                 <div class="mrow">
@@ -340,8 +343,10 @@
                       <!-- Image Upload Section Ends -->
                     <textarea maxlength="2000" style="height: 40px;resize:none;margin-top:20px;" class="form-control" type="text" placeholder="Type Message" id="msg-place"></textarea>
                     <button class="btn" style="margin-top:20px;" type="submit" value="" id="send-btn"><i class="fa fa-paper-plane" style="font-size: 25px;"></i></button>    
-                </div>
+                
                 </form>
+           
+            </div>
             <!-- Send Button Ends -->
             <!-- ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| -->
             {% elif flag == 2 %}
@@ -434,11 +439,29 @@
                 <div class="mspac">
                     <h4>{{room.name}} </h4>
                 </div>
-                
-                
                     
             </div>
             <hr style="width: 100%;">
+            <!-- List the Members of the Group -->
+            <h2>Members</h2><br>
+            {% for i in mem %}
+                <div class="mrow">
+                    <div >
+                        {% if  i.user.profile_picture %}
+                        <img class="post-sub-profile" src="/media/{{i.user.profile_picture}}" alt="">
+                        {% else %}
+                        <img class="post-sub-profile" src="https://cdn-icons-png.flaticon.com/512/143/143438.png" alt="">
+                        {% endif %}
+                    </div>
+                    <div class="mspac">
+                        <h4>{{i.user.name}} </h4>
+                    </div>
+                        
+                </div>
+            {% endfor %}
+
+            <!-- List Members Ends -->
+
             <!-- Button for Clear all Chat -->
             {% if request.user == room.owner %}
             <a href="/clear-chat/{{room.slug}}"><button class="btn btn-danger">Clear Chat</button></a>
@@ -446,62 +469,11 @@
             {% endif %}
             <!-- Group Setting Section Ends-->
             {% endif %}
-        </div>
+        
         <br>
     
 </div>
 
-<div id="snackbar">You have New Message!</div>
-
-<style>
-    /* The snackbar - position it at the bottom and in the middle of the screen */
-#snackbar {
-  visibility: hidden; /* Hidden by default. Visible on click */
-  min-width: 250px; /* Set a default minimum width */
-  margin-left: -125px; /* Divide value of min-width by 2 */
-  background-color: #333; /* Black background color */
-  color: #fff; /* White text color */
-  text-align: center; /* Centered text */
-  border-radius: 2px; /* Rounded borders */
-  padding: 16px; /* Padding */
-  position: fixed; /* Sit on top of the screen */
-  z-index: 1; /* Add a z-index if needed */
-  left: 50%; /* Center the snackbar */
-  bottom: 30px; /* 30px from the bottom */
-}
-
-/* Show the snackbar when clicking on a button (class added with JavaScript) */
-#snackbar.show {
-  visibility: visible; /* Show the snackbar */
-  /* Add animation: Take 0.5 seconds to fade in and out the snackbar.
-  However, delay the fade out process for 2.5 seconds */
-  -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
-  animation: fadein 0.5s, fadeout 0.5s 2.5s;
-}
-
-/* Animations to fade the snackbar in and out */
-@-webkit-keyframes fadein {
-  from {bottom: 0; opacity: 0;}
-  to {bottom: 30px; opacity: 1;}
-}
-
-@keyframes fadein {
-  from {bottom: 0; opacity: 0;}
-  to {bottom: 30px; opacity: 1;}
-}
-
-@-webkit-keyframes fadeout {
-  from {bottom: 30px; opacity: 1;}
-  to {bottom: 0; opacity: 0;}
-}
-
-@keyframes fadeout {
-  from {bottom: 30px; opacity: 1;}
-  to {bottom: 0; opacity: 0;}
-}
-</style>
-
-    <!-- New Style Ends -->
 
    
 
@@ -535,6 +507,21 @@
                 
             }
             reader.readAsDataURL(file);
+        }
+
+        // notification server
+        console.log("script...")
+        const notiSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/'
+            + 'notification'
+            + '/'
+        );
+
+        
+        notiSocket.onclose = function(e){
+            console.log("Notification recieved!");
         }
 
         

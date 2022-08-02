@@ -4,14 +4,11 @@ from django.contrib.auth.models import User
 from room.models import Connection, Message, Room
 from home.models import Account
 
-from django.db.models import Q
-
 # Create your views here.
 def rooms(request):
     rooms = Connection.objects.filter(user__user=request.user)
 
     usr_room = Room.objects.filter(usr2=Account.objects.get(user=request.user))
-    print("USR_ROOM: ",usr_room)
     usrAc = Account.objects.get(user=request.user)
     flag = 0
 
@@ -55,11 +52,10 @@ def room(request,slug):
                 room = Room.objects.get(slug=usr_slug)
         # Check if the room already connected or not
         me_usr = Account.objects.get(user=request.user)
-        if(Connection.objects.filter(room=room).count() == 0):
+        if(Connection.objects.filter(room=room,user=me_usr).count() == 0):
             x = Connection(room=room,user=me_usr)
             x.save()
 
-     
         rooms = Connection.objects.filter(user=me_usr)
         usrAc = Account.objects.get(user=request.user)
         usr_room = Room.objects.filter(usr2=Account.objects.get(user=request.user))
@@ -71,40 +67,22 @@ def room(request,slug):
         
         # Check if private
         if room.isPrivate == True:
-            print("Working")
             if room.usr1.user == request.user:
                 me = Account.objects.get(user=room.usr1.user)
                 other = Account.objects.get(user=room.usr2.user)
-                print("ME: ",me.name)
-                print("OTHER: ",other.name)
-                print("LOGED IN: ",request.user)
+                
             else:
                 print("ELSE")
                 other = Account.objects.get(user=room.usr1.user)
                 me = Account.objects.get(user=room.usr2.user)
-                print("ME: ",me.name)
-                print("OTHER: ",other.name)
-                print("LOGED IN: ",request.user)
-               
-            
+  
             return render(request,'room.html',{'rms':rooms,'flag':flag,'room':room,'messages':messages,'ac':usrAc,"me":me,"other":other,"rooms":usr_room})
         user_agent = request.META['HTTP_USER_AGENT']
 
         if 'Mobile' in user_agent:
             return render(request,'mobile/room.html',{'room':room})
         return render(request,'room.html',{'rms':rooms,'flag':flag,'room':room,'messages':messages,'ac':usrAc,"rooms":usr_room})
-    # except:
-    #     print("EXCEPT")
-    #     rooms = Room.objects.all()
-    #     usrAc = Account.objects.get(user=request.user)
-    #     flag = 0
-
-    #     user_agent = request.META['HTTP_USER_AGENT']
-
-    #     if 'Mobile' in user_agent:
-    #         return render(request,'mobile/rooms.html',{'rms':rooms})
-    #     return render(request,'room.html',{'rms':rooms,'flag':flag,'ac':usrAc})
-
+   
 
 def chat_setting(request,slug):
     usrAc = Account.objects.get(user=request.user)
@@ -112,7 +90,9 @@ def chat_setting(request,slug):
     rooms = Connection.objects.filter(user__user=request.user)
     usr_room = Room.objects.filter(usr2=Account.objects.get(user=request.user))
 
-    return render(request,'room.html',{'rms':rooms,'flag':3,'room':room,'ac':usrAc,"rooms":usr_room})
+    members = Connection.objects.filter(room=room)
+
+    return render(request,'room.html',{'rms':rooms,'flag':3,'room':room,'ac':usrAc,"rooms":usr_room,'mem':members})
 
 def clear_chat(request,slug):
     # fetch all messages from database
@@ -133,15 +113,33 @@ def create_group(request):
 
         slug = "".join(name.split())
 
+        me_usr = Account.objects.get(user=request.user)
+
         if(image):
             x = Room(name=name,profile_picture=image,desc=about,slug=slug.lower(),owner = request.user)
             x.save()
+
+            x.slug += str(x.id)
+            x.save()
+
+            # Create connections for this
+            
+            c = Connection(room=x,user=me_usr)
+            c.save()
+
         else:
             x = Room(name=name,desc=about,slug=slug.lower(),owner = request.user)
             x.save()
 
             x.slug += str(x.id)
             x.save()
+
+            # Create connections for this
+
+            c = Connection(room=x,user=me_usr)
+            c.save()
+        
+
         
         return rooms(request)
 
